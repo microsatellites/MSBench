@@ -8,6 +8,11 @@
 # Email  : pengjia@stu.xjtu.edu.cn
 # Description: main function and arguments processing
 =============================================================================="""
+import os
+import sys
+
+curpath = os.path.abspath(os.path.dirname(sys.argv[0]))
+sys.path.append(os.path.dirname(curpath))
 from src.paras import *
 from src.benchmark import *
 from src.benchmark_merge import *
