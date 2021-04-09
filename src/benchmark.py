@@ -15,11 +15,8 @@ import sys
 curpath = os.path.abspath(os.path.dirname(sys.argv[0]))
 sys.path.append(os.path.dirname(curpath))
 import os
-import re
-import collections
 import pysam
 import multiprocessing
-from src.global_dict import *
 from src.units import *
 from src.Window import Window
 
