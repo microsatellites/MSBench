@@ -31,7 +31,7 @@ def benchmark_init(args):
         "output": args.output[0],
         "microsatellite": args.microsatellite[0],
         "reference": args.reference[0],
-        "separator": args.separator[0],
+        # "separator": args.separator[0],
         "microsatellite_region_format": args.microsatellite_region_format[0],
         "prefix_len": args.prefix_len[0],
         "suffix_len": args.suffix_len[0],

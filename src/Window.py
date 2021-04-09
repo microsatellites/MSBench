@@ -50,7 +50,7 @@ class Window:
         self.microsatellites_id = [it["chr"] + "_" + str(it["pos"]) for it in ms_info_list]
         self.vcf_recs = []
 
-    def init_microsatellites(self, only_simple=True):
+    def init_microsatellites(self, only_simple=False):
         """
         Description: Microsatellite class init for this window
         Returns:
@@ -103,7 +103,7 @@ class Window:
             result_list.append(read)
         self.reads = {read.read_id: read for read in result_list}
 
-    def get_reads_info(self, only_simple=True):
+    def get_reads_info(self, only_simple=False):
         """
         Description: get mutation of each read and repeat length destribution
         Returns:
@@ -141,30 +141,30 @@ class Window:
         for ms_id, reads_info in microsatellites_dict.items():
             self.microsatellites[ms_id].set_reads_info(reads_info)
 
-    # def merge_muts_info(self, only_simple=True):
-    #     # logger.info("\tMerge microsatellites infomation from different reads... ")
-    #     microsatellites_dict_dis = {ms_id: {} for ms_id in self.microsatellites}
-    #     microsatellites_dict_mut = {ms_id: {} for ms_id in self.microsatellites}
-    #     for read_id, read in self.reads.items():
-    #         stand = read.strand
-    #         hap = read.hap
-    #         for ms_id, ms_read_repeat_length in read.repeat_lengths.items():
-    #             microsatellites_dict_dis[ms_id][read_id] = [ms_read_repeat_length, stand, hap]
-    #         if not only_simple:
-    #             for ms_id, ms_read_mut in read.mut_info.items():
-    #                 microsatellites_dict_mut[ms_id][read_id] = ms_read_mut
-    #     self.reads = {}
-    #     for ms_id, ms_read_repeat_length_info in microsatellites_dict_dis.items():
-    #         self.microsatellites[ms_id].set_read_dis_info(ms_read_repeat_length_info)
-    #         if not only_simple:
-    #             self.microsatellites[ms_id].set_muts_info(microsatellites_dict_mut[ms_id])
-    #     # microsatellites_dict = {ms_id: {} for ms_id in self.microsatellites}
-    #     # for read_id, read in self.reads.items():
-    #     #     for ms_id, ms_read_mut in read.mut_info.items():
-    #     #         microsatellites_dict[ms_id][read_id] = ms_read_mut
-    #     # self.reads = {}  # release memory
-    #     # for ms_id, reads_info in microsatellites_dict.items():
-    #     #     self.microsatellites[ms_id].set_muts_info(reads_info)
+    def merge_muts_info(self, only_simple=False):
+        # logger.info("\tMerge microsatellites infomation from different reads... ")
+        microsatellites_dict_dis = {ms_id: {} for ms_id in self.microsatellites}
+        microsatellites_dict_mut = {ms_id: {} for ms_id in self.microsatellites}
+        for read_id, read in self.reads.items():
+            stand = read.strand
+            hap = read.hap
+            for ms_id, ms_read_repeat_length in read.repeat_lengths.items():
+                microsatellites_dict_dis[ms_id][read_id] = [ms_read_repeat_length, stand, hap]
+            if not only_simple:
+                for ms_id, ms_read_mut in read.mut_info.items():
+                    microsatellites_dict_mut[ms_id][read_id] = ms_read_mut
+        self.reads = {}
+        for ms_id, ms_read_repeat_length_info in microsatellites_dict_dis.items():
+            self.microsatellites[ms_id].set_read_dis_info(ms_read_repeat_length_info)
+            if not only_simple:
+                self.microsatellites[ms_id].set_muts_info(microsatellites_dict_mut[ms_id])
+        # microsatellites_dict = {ms_id: {} for ms_id in self.microsatellites}
+        # for read_id, read in self.reads.items():
+        #     for ms_id, ms_read_mut in read.mut_info.items():
+        #         microsatellites_dict[ms_id][read_id] = ms_read_mut
+        # self.reads = {}  # release memory
+        # for ms_id, reads_info in microsatellites_dict.items():
+        #     self.microsatellites[ms_id].set_muts_info(reads_info)
 
     def genotype_one_microsatellite_ccs_contig(self, microsatellite):
         # microsatellite.get_dis()
@@ -603,9 +603,13 @@ class Window:
         Returns:
         """
         self.init_microsatellites()  # 并行
+        print("0")
         self.init_reads()  # 扫描read 确实其对应的 MS
+        print("1")
         self.get_reads_info()  # 处理read 并行
+        print("2")
         self.merge_muts_info()  # 合并read信息为MS信息
+        print("3")
         self.genotype_microsatellite_ccs_contig()  # 变异检测 并行
         # self.write_to_vcf_ccs_contig(file_output)  # 一条一条写入
 
@@ -630,5 +634,3 @@ class Window:
     #     self.get_reads_info(only_simple=self.paras["only_simple"])
     #     self.merge_muts_info(only_simple=self.paras["only_simple"])  # 合并read信息为MS信息
     #     self.call_variants()
-
-

@@ -43,7 +43,7 @@ class Microsatellite:
         self.minimum_support_reads = 0
         self.min_allele_fraction = 0
         # print(ms_info["prefix_len"])
-        self.sequencing_error = get_value("paras")["sequencing_error"]
+        self.sequencing_error = 0.01
         # self.ref_list = []
         self.reads_info = {}
         self.muts = {}
@@ -52,7 +52,7 @@ class Microsatellite:
         self.check = True
         self.check_status = []
         self.ms_error = []  # noise alleles
-        # self.mut = Mutation()
+        self.mut = Mutation()
         self.ref_all = pysam.FastaFile(self.reference).fetch(self.chrom, self.start_pre - 1, self.end_suf + 1)
         self.ref_str = ""
         self.ref_str_ms = ""
@@ -98,9 +98,9 @@ class Microsatellite:
         self.phased = False
         self.report_micro = True
         self.only_simple = only_simple
-        self.minimum_support_reads = get_value("paras")["minimum_support_reads"]
-        self.min_allele_fraction = get_value("paras")["min_allele_fraction"]
-        self.maximum_distance_of_two_complex_events = get_value("paras")["maximum_distance_of_two_complex_events"]
+        self.minimum_support_reads = 1
+        self.min_allele_fraction = 0.2
+        self.maximum_distance_of_two_complex_events = 5
 
         if only_simple:
             self.report_indel = False
@@ -353,7 +353,7 @@ class Microsatellite:
                             mismatches[pos] = [ref_base, alt_base]
                             poss.append(pos)
                         pos += 1
-                    if len(mismatches) - 2 > (ref_str_len-2) * 0.5:  # define complex event and
+                    if len(mismatches) - 2 > (ref_str_len - 2) * 0.5:  # define complex event and
                         mutation_type = "Complex"
                         mutation_description = "{length}bp_complex_span".format(length=ref_str_len)
                         start_pos = start_pos + left_shift
@@ -821,6 +821,8 @@ class Microsatellite:
             self.ref_str = pysam.FastaFile(self.reference).fetch(self.chrom, self.mut_start, self.mut_end + 1)
             return
         self.deletion_merge()
+        print("depth", self.depth)
+        print("muts", self.muts)
         mismatches = {}
         deletions = {}
         insertions = {}
@@ -864,6 +866,7 @@ class Microsatellite:
         self.mut_start = mut_start
         self.mut_end = mut_end
         self.ms_dis = ms_dis
+        print(ms_dis)
         self.query_repeat_length = get_max_support_index(ms_dis)
         for mut in deletions.values():
             if len(mut) > 1:
