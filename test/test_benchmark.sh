@@ -13,7 +13,6 @@ path_ref="/home/pengjia/REF/GRCh38_full_analysis_set_plus_decoy_hla/genome/GRCh3
   -t 3 -b 1000 -d True --tech contig
 
 
-  ldlld
 
 
 

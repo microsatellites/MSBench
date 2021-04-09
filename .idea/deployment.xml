@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" stopOnFirstError="true" deleteMissingItems="true" createEmptyFolders="true">
+  <component name="PublishConfigData" autoUpload="Always" serverName="pengjia@192.168.20.4:22 agent" stopOnFirstError="true" deleteMissingItems="true" createEmptyFolders="true">
     <serverData>
       <paths name="pengjia@192.168.20.4:22 agent">
         <serverdata>
