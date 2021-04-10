@@ -42,7 +42,8 @@ def benchmark_init(args):
         "batch": args.batch[0],
         "only_microsatellites": args.only_microsatellites[0],
         "ranges_of_repeat_times": {},
-        "tech": args.technology[0].lower()
+        "tech": args.technology[0].lower(),
+        "current_num": 0
     }
 
     for i in args.minimum_repeat_times[0].split(";"):
@@ -201,16 +202,13 @@ def run_window_mul(windows, args, file_output):
     windows = pool.map(run_one_window, windows)
     pool.close()
     pool.join()
-    # win_recs=[]
+    win_recs = []
     for win in windows:
         for rec in win.write_to_vcf_ccs_contig(file_output):
             file_output.write(rec)
     logger.info("Total Microsatellites: " + str(args["ms_num"]))
     logger.info("Finished Microsatellites: " + str(args["current_num"]) +
                 " (" + str(round(args["current_num"] / args["ms_num"] * 100, 2)) + "%)")
-
-    # return
-    #
 
 
 def benchmark(parase):

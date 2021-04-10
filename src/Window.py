@@ -50,14 +50,14 @@ class Window:
         self.microsatellites_id = [it["chr"] + "_" + str(it["pos"]) for it in ms_info_list]
         self.vcf_recs = []
 
-    def init_microsatellites(self, only_simple=False):
+    def init_microsatellites(self):
         """
         Description: Microsatellite class init for this window
         Returns:
         """
         microsatellites = []
         for ms in self.ms_list:
-            microsatellites.append(Microsatellite(ms, only_simple=only_simple))
+            microsatellites.append(Microsatellite(ms))
         self.microsatellites = {ms_info.ms_id: ms_info for ms_info in microsatellites}
 
     def init_reads(self):
@@ -103,7 +103,7 @@ class Window:
             result_list.append(read)
         self.reads = {read.read_id: read for read in result_list}
 
-    def get_reads_info(self, only_simple=False):
+    def get_reads_info(self):
         """
         Description: get mutation of each read and repeat length destribution
         Returns:
@@ -112,10 +112,7 @@ class Window:
         for read in self.reads.values():
             read.microsatellites = {ms_id: self.microsatellites[ms_id] for ms_id in read.support_microsatellites}
             read.get_read_str()
-            if only_simple:
-                read.get_repeat_length_all_ms()
-            else:
-                read.get_ms_info_one_read()
+            read.get_ms_info_one_read()
             result_list.append(read)
         self.reads = {read.read_id: read for read in result_list}
 
@@ -141,58 +138,30 @@ class Window:
         for ms_id, reads_info in microsatellites_dict.items():
             self.microsatellites[ms_id].set_reads_info(reads_info)
 
-    def merge_muts_info(self, only_simple=False):
+    def merge_muts_info(self):
         # logger.info("\tMerge microsatellites infomation from different reads... ")
-        microsatellites_dict_dis = {ms_id: {} for ms_id in self.microsatellites}
+        # microsatellites_dict_dis = {ms_id: {} for ms_id in self.microsatellites}
         microsatellites_dict_mut = {ms_id: {} for ms_id in self.microsatellites}
         for read_id, read in self.reads.items():
-            stand = read.strand
-            hap = read.hap
-            for ms_id, ms_read_repeat_length in read.repeat_lengths.items():
-                microsatellites_dict_dis[ms_id][read_id] = [ms_read_repeat_length, stand, hap]
-            if not only_simple:
-                for ms_id, ms_read_mut in read.mut_info.items():
-                    microsatellites_dict_mut[ms_id][read_id] = ms_read_mut
+            # for ms_id, ms_read_repeat_length in read.repeat_lengths.items():
+            #     microsatellites_dict_dis[ms_id][read_id] = ms_read_repeat_length
+            for ms_id, ms_read_mut in read.mut_info.items():
+                microsatellites_dict_mut[ms_id][read_id] = ms_read_mut
         self.reads = {}
-        for ms_id, ms_read_repeat_length_info in microsatellites_dict_dis.items():
-            self.microsatellites[ms_id].set_read_dis_info(ms_read_repeat_length_info)
-            if not only_simple:
-                self.microsatellites[ms_id].set_muts_info(microsatellites_dict_mut[ms_id])
-        # microsatellites_dict = {ms_id: {} for ms_id in self.microsatellites}
-        # for read_id, read in self.reads.items():
-        #     for ms_id, ms_read_mut in read.mut_info.items():
-        #         microsatellites_dict[ms_id][read_id] = ms_read_mut
-        # self.reads = {}  # release memory
-        # for ms_id, reads_info in microsatellites_dict.items():
-        #     self.microsatellites[ms_id].set_muts_info(reads_info)
+        for ms_id, ms_read_mut_info in microsatellites_dict_mut.items():
+            self.microsatellites[ms_id].set_muts_info(ms_read_mut_info)
+
 
     def genotype_one_microsatellite_ccs_contig(self, microsatellite):
-        # microsatellite.get_dis()
         microsatellite.one_hap_genotype()
         return microsatellite
 
-    # def genotype_one_microsatellite_ccs(self, microsatellite):
-    #     # microsatellite.get_dis()
-    #
-    #     return microsatellite
 
     def genotype_microsatellite_ccs_contig(self):
         microsatellites = []
         for microsatellite in self.microsatellites.values():
             microsatellites.append(self.genotype_one_microsatellite_ccs_contig(microsatellite))
         self.microsatellites = {ms.ms_id: ms for ms in microsatellites}
-
-    # def call_variants(self):
-    #     microsatellites = []
-    #     for microsatellite in self.microsatellites.values():
-    #         if self.paras["only_simple"]:
-    #             microsatellite.call_micro()
-    #         else:
-    #             microsatellite.call_micro_and_other()
-    #         # microsatellite.remove_noise()
-    #         # microsatellite.ccs_genotype()
-    #         microsatellites.append(microsatellite)
-    #     self.microsatellites = {ms.ms_id: ms for ms in microsatellites}
 
     def write_to_vcf_ccs_contig(self, file_output):
         # logger.info("\tWrite to vcf ... ")
@@ -603,34 +572,11 @@ class Window:
         Returns:
         """
         self.init_microsatellites()  # 并行
-        print("0")
+        # print("0")
         self.init_reads()  # 扫描read 确实其对应的 MS
-        print("1")
+        # print("1")
         self.get_reads_info()  # 处理read 并行
-        print("2")
+        # print("2")
         self.merge_muts_info()  # 合并read信息为MS信息
-        print("3")
+        # print("3")
         self.genotype_microsatellite_ccs_contig()  # 变异检测 并行
-        # self.write_to_vcf_ccs_contig(file_output)  # 一条一条写入
-
-    # def run_window_pre_stat(self):
-    #     """
-    #     For ngs/ccs pre_stat
-    #     Returns:
-    #     """
-    #     self.init_microsatellites()  # 并行
-    #     self.init_reads()  # 扫描read 确实其对应的 MS
-    #     self.get_reads_dis()  # 处理read 并行
-    #     self.merge_reads_repeat_length_distribution()  # 合并read信息为MS信息
-
-    # def run_window_call_variant(self):
-    #     """
-    #     For ngs/ccs variant calling
-    #     Returns:
-    #
-    #     """
-    #     self.init_microsatellites(only_simple=self.paras["only_simple"])  # 并行
-    #     self.init_reads()  # 扫描read 确实其对应的 MS
-    #     self.get_reads_info(only_simple=self.paras["only_simple"])
-    #     self.merge_muts_info(only_simple=self.paras["only_simple"])  # 合并read信息为MS信息
-    #     self.call_variants()

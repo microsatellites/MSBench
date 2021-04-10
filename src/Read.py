@@ -67,9 +67,9 @@ class Read:
         for cigartuple in self.cigartuples:
             if cigartuple[0] in [0, 7, 8]:  # 0 : M : match or mishmatch ; 7: :=:match; 8:X:mismatch
                 match_read = list(self.this_read_str[read_pos:read_pos + cigartuple[1]])
-                match_quals = list(self.this_read_quals[read_pos:read_pos + cigartuple[1]])
+                # match_quals = list(self.this_read_quals[read_pos:read_pos + cigartuple[1]])
                 sub_read_str.extend(match_read)
-                sub_read_quals.extend(match_quals)
+                # sub_read_quals.extend(match_quals)
                 read_pos += cigartuple[1]
             elif cigartuple[0] in [1, 4, 5]:  # 1:I:inserion ;4:S:soft clip 5:H:hardclip
                 if cigartuple[0] == 1:
@@ -77,21 +77,17 @@ class Read:
                         continue
                     else:
                         sub_read_str[-1] += self.this_read_str[read_pos:read_pos + cigartuple[1]]
-                        if self.tech == "contig": continue
-                        sub_read_quals[-1] += self.this_read_quals[read_pos:read_pos + cigartuple[1]]
-                elif cigartuple[0] == 5:
-                    continue
                 read_pos += cigartuple[1]
             elif cigartuple[0] in [2, 3]:  # 2:D; 3:N: skip region of reference
                 sub_read_str.extend([""] * cigartuple[1])
-                if self.tech == "contig": continue
-                sub_read_quals.extend([""] * cigartuple[1])
             else:
                 return -1
         self.this_read_list = sub_read_str
         # self.this_read_str = ""
         self.this_quals_list = sub_read_quals
         self.this_read_quals = ""
+        # print("1", self.this_read_list[-100:])
+        # print("1", self.this_ref_list[-100:])
 
     def get_repeat_length(self, ms_start, ms_end):  # give a start and end
         query_repeat_length = len(
@@ -134,10 +130,18 @@ class Read:
             pos_based_info = {}
             pos_deletion = []
             ref_pos = ms_start_pre - 2
+            # print("read", self.align_start, self.this_read_list[:20])
+            # print("ref", self.align_start, self.this_ref_list[:20])
+            # print("read", self.align_start,
+            #       self.this_read_list[ms_start_pre - self.align_start - 1: ms_end_suf - self.align_start])
+            # print("ref", self.align_start,
+            #       self.this_ref_list[ms_start_pre - self.align_start - 1: ms_end_suf - self.align_start])
             for pot in range(ms_start_pre - self.align_start - 1, ms_end_suf - self.align_start):
                 ref_pos += 1
                 this_read_base = self.this_read_list[pot]
                 this_ref_base = self.this_ref_list[pot]
+                # print(ref_pos, pot, this_read_base, this_ref_base)
+
                 if this_read_base == this_ref_base:
                     continue
                 else:
@@ -155,6 +159,7 @@ class Read:
                     this_ref_base_len = len(this_ref_base)
                     if this_read_base_len == this_ref_base_len:
                         mismatches.append([ref_pos, this_read_base, band])
+                        # print("0", ref_pos, this_read_base, this_ref_base)
                         pos_based_info[ref_pos] = ["SNV", this_ref_base, this_read_base, band]
                     else:
                         if this_read_base_len < this_ref_base_len:
@@ -197,6 +202,7 @@ class Read:
                                              pos_based_info=pos_based_info,
                                              read_str=read_str
                                              )
+            # TODO check mismatch of this
             repeat_lengths[ms_id] = query_repeat_length
         self.repeat_lengths = repeat_lengths
         self.mut_info = read_muts

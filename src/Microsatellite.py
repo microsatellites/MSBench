@@ -24,7 +24,7 @@ class Microsatellite:
     Description: For microsatellite
     """
 
-    def __init__(self, ms_info, only_simple=True):
+    def __init__(self, ms_info):
         self.chrom = ms_info["chr"]
         self.start = ms_info["pos"]
         self.prefix = ms_info["prefix"]
@@ -97,23 +97,17 @@ class Microsatellite:
         self.qual_ms_hap2 = 0
         self.phased = False
         self.report_micro = True
-        self.only_simple = only_simple
+        self.only_simple = False
         self.minimum_support_reads = 1
         self.min_allele_fraction = 0.2
         self.maximum_distance_of_two_complex_events = 5
-
-        if only_simple:
-            self.report_indel = False
-            self.report_snv = False
-            self.report_complex = False
-        else:
-            self.report_indel = True
-            self.report_snv = True
-            self.report_complex = True
-            self.format_GT = (0, 0)  # genotype
-            self.format_AL = "/".join(["0", "0"])
-            self.format_DP = "/".join(["0", "0", "0"])
-            self.format_QL = "/".join(["0", "0", "0"])
+        self.report_indel = True
+        self.report_snv = True
+        self.report_complex = True
+        self.format_GT = (0, 0)  # genotype
+        self.format_AL = "/".join(["0", "0"])
+        self.format_DP = "/".join(["0", "0", "0"])
+        self.format_QL = "/".join(["0", "0", "0"])
 
     def set_reads_info(self, reads_info):
         self.reads_info = reads_info
@@ -128,21 +122,14 @@ class Microsatellite:
     def set_read_dis_info(self, reads_info):
         # self.reads_info = reads_info
         dis = {}
-        dis_strand = {True: {}, False: {}}
-        dis_hap = {0: {}, 1: {}, 2: {}}
+
         # print(reads_info)
 
-        for read_id, ms_info in reads_info.items():
-            repeat_length, strand, hap = ms_info
+        for read_id, repeat_length in reads_info.items():
+
             if repeat_length not in dis:
                 dis[repeat_length] = 0
             dis[repeat_length] += 1
-            if repeat_length not in dis_hap[hap]:
-                dis_hap[hap][repeat_length] = 0
-            dis_hap[hap][repeat_length] += 1
-            if repeat_length not in dis_strand[strand]:
-                dis_strand[strand][repeat_length] = 0
-            dis_strand[strand][repeat_length] += 1
         new_dis = {}
         depth = sum(dis.values())
         errors = []
@@ -151,37 +138,10 @@ class Microsatellite:
                 new_dis[rp] = times
             else:
                 errors.append(rp)
-        for rp in errors:
-            dis_hap[0].pop(rp)
-            dis_hap[1].pop(rp)
-            dis_hap[2].pop(rp)
-            dis_strand[True].pop(rp)
-            dis_strand[True].pop(rp)
         self.ms_error = errors
         self.dis_stat = True if self.depth > 0 else False
         self.ms_dis = dis
-        self.ms_dis_hap0 = dis_hap[0]
-        self.ms_dis_hap1 = dis_hap[1]
-        self.ms_dis_hap2 = dis_hap[2]
-        self.ms_dis_forward = dis_strand[True]
-        self.ms_dis_reversed = dis_strand[False]
         self.query_repeat_length = get_max_support_index(dis)
-        dis_hap0_num = sum(dis_hap[0].values())
-        dis_hap1_num = sum(dis_hap[1].values())
-        dis_hap2_num = sum(dis_hap[2].values())
-        self.support_hap0 = dis_hap0_num
-        self.support_hap1 = dis_hap1_num
-        self.support_hap2 = dis_hap2_num
-        self.depth = dis_hap0_num + dis_hap1_num + dis_hap2_num
-        self.support_reads = dis_hap0_num + dis_hap1_num + dis_hap2_num
-        if abs(dis_hap1_num - dis_hap2_num) > self.depth * 0.4:  # TODO add in input arguments
-            self.reads_phased = False
-        elif dis_hap0_num > self.depth * 0.5:  # TODO add in input arguments
-            self.reads_phased = False
-        elif dis_hap1_num < 2 or dis_hap2_num < 2:
-            self.reads_phased = False
-        else:
-            self.reads_phased = True
 
     def get_dis(self):
         samfile = pysam.Samfile(get_value("paras")["input"])
@@ -323,6 +283,8 @@ class Microsatellite:
                 break
         ref_str = ref_str[left_shift:]
         alt_str = alt_str[left_shift:]
+        print(ref_str)
+        print(alt_str)
 
         ref_str_len = len(ref_str)
         alt_str_len = len(alt_str)
@@ -419,7 +381,7 @@ class Microsatellite:
                     hap2.append(read_info)
             if len(hap1) >= self.minimum_support_reads:
                 mutation_events_hap1 = self.get_mut_one_hap(hap1, self.hap1_ms_mut)
-                print("hap1", self.ms_id, mutation_events_hap1)
+                # print("hap1", self.ms_id, mutation_events_hap1)
                 # print("ref", pysam.FastaFile(self.reference).fetch(self.chrom, start_pos, end_pos + 1))
                 # print("Ref", ref_str)
                 # print("alt", alt_str)
@@ -427,7 +389,7 @@ class Microsatellite:
                 # print("++++++++++++++++++")
             if len(hap2) >= self.minimum_support_reads:
                 mutation_events_hap2 = self.get_mut_one_hap(hap2, self.hap2_ms_mut)
-                print("hap2", self.ms_id, mutation_events_hap2)
+                # print("hap2", self.ms_id, mutation_events_hap2)
 
         else:  # has mutation in ms
             pass
@@ -472,15 +434,17 @@ class Microsatellite:
         #     self.ms_dis = ms_dis
         # def check_noise(self):
 
-    def get_alt(self, alt_dict, offset):
+    def get_alt(self, alt_dict, offset,):
 
         alt_list = list(self.ref_str)
+        # print("inter",self.ref_str)
         # print(self.ref_str)
         # print(len(alt_list))
         # print(alt_dict)
         # print(offset)
         # print("==============================")
         for pos, info in alt_dict:
+            # print(pos-offset,alt_list[pos - offset],info)
             alt_list[pos - offset] = info
         return "".join(alt_list)
 
@@ -504,15 +468,9 @@ class Microsatellite:
             return False
         else:
             self.report_micro = True
-            if not self.only_simple:
-                self.report_indel = False
-                self.report_snv = False
-                self.report_complex = False
-            else:
-                self.report_indel = True
-                self.report_snv = True
-                self.report_complex = True
-
+            self.report_indel = True
+            self.report_snv = True
+            self.report_complex = True
             return True
 
     def call_micro(self):
@@ -821,8 +779,8 @@ class Microsatellite:
             self.ref_str = pysam.FastaFile(self.reference).fetch(self.chrom, self.mut_start, self.mut_end + 1)
             return
         self.deletion_merge()
-        print("depth", self.depth)
-        print("muts", self.muts)
+        # print("depth", self.depth)
+        # print("muts", self.muts)
         mismatches = {}
         deletions = {}
         insertions = {}
@@ -833,6 +791,7 @@ class Microsatellite:
             for mut in read_info.mismatches:
                 mut_start = min(mut_start, mut[0])
                 mut_end = max(mut_end, mut[0])
+                # print(mismatches)
                 if mut[0] not in mismatches:
                     mismatches[mut[0]] = {}
                 if mut[1] not in mismatches[mut[0]]:
@@ -866,7 +825,7 @@ class Microsatellite:
         self.mut_start = mut_start
         self.mut_end = mut_end
         self.ms_dis = ms_dis
-        print(ms_dis)
+        # print(ms_dis)
         self.query_repeat_length = get_max_support_index(ms_dis)
         for mut in deletions.values():
             if len(mut) > 1:
@@ -920,3 +879,11 @@ class Microsatellite:
         self.mut.compute()
         self.ref_str = pysam.FastaFile(self.reference).fetch(self.chrom, self.mut_start - 1, self.mut_end + 1)
         self.alt_str = "." if self.mut.var_type == "None" else self.get_alt(alt_list, offset=self.mut_start - 1)
+        # print(self.mut_start - 1, self.mut_end + 1)
+        # print("ref", self.ref_str)
+        # print("alt", self.alt_str)
+        # print("alt", alt_list)
+        #
+        # print(self.start, self.mut_start)
+        #
+        # print("-----------------------")
