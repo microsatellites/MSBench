@@ -11,12 +11,21 @@ path_ref="/home/pengjia/REF/GRCh38_full_analysis_set_plus_decoy_hla/genome/GRCh3
   -m ${path_microsatellite_regions} \
   -r ${path_ref} \
   -t 28 -b 3000  --tech contig
+
 /home/pengjia/miniconda3/envs/default/bin/python /home/DATA/ProjectSTR/codes/MSBench/src/main.py benchmark \
   -i ${dir_ccs_contig_bam}HG00732.Contig.GRCh38.hap2.bam \
   -o ${dir_output}HG00732.Contig.GRCh38.hap2 \
   -m ${path_microsatellite_regions} \
   -r ${path_ref} \
   -t 28 -b 3000  --tech contig
+
+/home/pengjia/miniconda3/envs/default/bin/python /home/DATA/ProjectSTR/codes/MSBench/src/main.py benchmark \
+  -i ${dir_ccs_contig_bam}HG00732.Contig.GRCh38.hap2.bam \
+  -o ${dir_output}HG00732.Contig.GRCh38.hap2 \
+  -m ${path_microsatellite_regions} \
+  -r ${path_ref} \
+  -t 28 -b 3000  --tech contig
+
 
 
 
