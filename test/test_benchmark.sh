@@ -24,7 +24,8 @@ path_ref="/home/pengjia/REF/GRCh38_full_analysis_set_plus_decoy_hla/genome/GRCh3
   -o ${dir_output}HG00732.Contig.GRCh38.hap2 \
   -m ${path_microsatellite_regions} \
   -r ${path_ref} \
-  -t 28 -b 3000  --tech contig
+  -t 28 -b 3000  --tech contigshowq
+
 
 
 
