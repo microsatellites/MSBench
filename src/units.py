@@ -14,8 +14,6 @@ import pandas as pd
 from src.global_dict import *
 
 
-
-
 class Read_Mutation:
     """
     Description: class for read mutation

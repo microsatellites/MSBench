@@ -60,8 +60,9 @@ def args_process():
                                           + str(defaultPara_bm["microsatellite_region_format"]) + ']')
     bm_input_and_output.add_argument('-tech', '--technology', type=str, nargs=1,
                                      choices=["ccs", "clr", "ont", "ilm", "contig"],
-                                     required=True,
-                                     help='Sequencing technology [required]')
+                                     required=False,
+                                     default=["contig"],
+                                     help='Sequencing technology [default:contig]')
     ##################################################################################
     # group general option
     bm_general_option = parser_bm.add_argument_group(title="General option")
@@ -160,6 +161,8 @@ def args_process():
                                     default=[default_para_bmm["debug"]],
                                     help="Debug mode for developers [default:" +
                                          str(default_para_bmm["debug"]) + "]")
+    commandsParser["benchmark_merge"] = parser_bmm
+
     if len(os.sys.argv) < 2:
         parser.print_help()
         return False

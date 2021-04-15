@@ -28,13 +28,13 @@ def benchmark_merge_init(args):
         print("[INFO] The haplotype 1 microsatellite calling result is : '" + paras["hap1"] + "'.")
     else:
         print('[ERROR] The aplotype 1 microsatellite calling result '
-              + paras["input"] + ' is not exist, please check again')
+              + paras["hap1"] + ' is not exist, please check again')
         error_stat = True
     if os.path.exists(paras["hap2"]):
         print("[INFO] The haplotype 2 microsatellite calling result is : '" + paras["hap2"] + "'.")
     else:
         print('[ERROR] The aplotype 2 microsatellite calling result '
-              + paras["input"] + ' is not exist, please check again')
+              + paras["hap2"] + ' is not exist, please check again')
         error_stat = True
     if not os.path.exists(paras["output"]):
         print("[INFO] The output is : " + paras["output"] + ".")

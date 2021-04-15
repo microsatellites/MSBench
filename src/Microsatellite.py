@@ -1,5 +1,4 @@
-﻿#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+﻿# -*- coding: UTF-8 -*-
 """==============================================================================
 # Project: MSHunter
 # Script : Microsatellite.py
@@ -434,7 +433,7 @@ class Microsatellite:
         #     self.ms_dis = ms_dis
         # def check_noise(self):
 
-    def get_alt(self, alt_dict, offset,):
+    def get_alt(self, alt_dict, offset, ):
 
         alt_list = list(self.ref_str)
         # print("inter",self.ref_str)
@@ -776,7 +775,7 @@ class Microsatellite:
             self.check = False
             self.check_status.append("No_read_covered")
             self.dis_stat = False
-            self.ref_str = pysam.FastaFile(self.reference).fetch(self.chrom, self.mut_start, self.mut_end + 1)
+            self.ref_str = pysam.FastaFile(self.reference).fetch(self.chrom, self.mut_start, self.mut_end)
             return
         self.deletion_merge()
         # print("depth", self.depth)
@@ -855,6 +854,7 @@ class Microsatellite:
         for mut_pos, info in insertions.items():
             gt_list = list(info.keys())
             alt_list.append([mut_pos, gt_list[0]])
+            gt_list = [i[1:] for i in gt_list]
             if mut_pos < self.start - 1:
                 self.mut.var_pre[mut_pos] = ["INS", gt_list]
             elif mut_pos < self.end:
@@ -877,8 +877,8 @@ class Microsatellite:
                     self.check = False
                     self.check_status.append("DEL_Span")
         self.mut.compute()
-        self.ref_str = pysam.FastaFile(self.reference).fetch(self.chrom, self.mut_start - 1, self.mut_end + 1)
-        self.alt_str = "." if self.mut.var_type == "None" else self.get_alt(alt_list, offset=self.mut_start - 1)
+        self.ref_str = pysam.FastaFile(self.reference).fetch(self.chrom, self.mut_start, self.mut_end + 1)
+        self.alt_str = "." if self.mut.var_type == "None" else self.get_alt(alt_list, offset=self.mut_start)
         # print(self.mut_start - 1, self.mut_end + 1)
         # print("ref", self.ref_str)
         # print("alt", self.alt_str)

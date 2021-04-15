@@ -172,7 +172,7 @@ class Read:
                                 band = [3]
                             insertions.append([ref_pos, this_read_base, band])
                             if band[0] != 3:
-                                pos_based_info[ref_pos] = ["INS", "", this_read_base[1:], band]
+                                pos_based_info[ref_pos] = ["INS", "", this_read_base, band]
 
             if len(pos_deletion) > 0:
                 deletion_start = pos_deletion[0][0]

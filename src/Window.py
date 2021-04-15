@@ -151,11 +151,9 @@ class Window:
         for ms_id, ms_read_mut_info in microsatellites_dict_mut.items():
             self.microsatellites[ms_id].set_muts_info(ms_read_mut_info)
 
-
     def genotype_one_microsatellite_ccs_contig(self, microsatellite):
         microsatellite.one_hap_genotype()
         return microsatellite
-
 
     def genotype_microsatellite_ccs_contig(self):
         microsatellites = []
@@ -189,7 +187,6 @@ class Window:
             vcfrec.info["end_suf"] = ms.end_suf
             vcfrec.info["mut_start"] = ms.mut_start
             vcfrec.info["mut_end"] = ms.mut_end
-
             vcfrec.info["query_repeat_length"] = ms.query_repeat_length
             vcfrec.info["dis_stat"] = str(ms.dis_stat)
             vcfrec.info["check"] = str(ms.check)
